@@ -1,0 +1,168 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="從空資料夾開始，完成包裹存入、櫃位分配、取件驗證與紀錄查詢。"><title>IBM Bob 學院：智慧包裹櫃</title><link rel="stylesheet" href="./tutorial.css"><script src="./tutorial.js" defer></script></head><body><a class="skip" href="#main">跳至教學內容</a><header class="topbar"><span class="brand">IBM BOB學院</span></header><div class="shell"><aside class="sidebar"><button class="menu-toggle" aria-expanded="false" aria-controls="chapter-nav">課程目錄 <span aria-hidden="true">＋</span></button><div id="chapter-nav"><p class="eyebrow">學習路徑</p><nav aria-label="章節目錄"><a href="#intro"><span class="nav-dot" aria-hidden="true">·</span>課程概覽</a><a href="#prepare"><span class="nav-dot" aria-hidden="true">·</span>開始前準備</a><a href="#step-1"><span class="nav-dot" aria-hidden="true">01</span>Step 1：建立後端與櫃位資料</a><a href="#step-2"><span class="nav-dot" aria-hidden="true">02</span>Step 2：製作櫃位看板</a><a href="#step-3"><span class="nav-dot" aria-hidden="true">03</span>Step 3：完成存件與自動分配</a><a href="#step-4"><span class="nav-dot" aria-hidden="true">04</span>Step 4：完成取件與釋放櫃位</a><a href="#step-5"><span class="nav-dot" aria-hidden="true">05</span>Step 5：顯示包裹紀錄</a><a href="#step-6"><span class="nav-dot" aria-hidden="true">06</span>Step 6：驗證完整流程</a></nav><div class="progress-card"><p>你的學習進度</p><strong id="progress-text">已完成 0／0 項</strong><progress id="progress-bar" value="0" max="1" aria-label="驗收完成進度"></progress><p class="small">完成操作並確認結果符合預期後，<br>勾選項目以記錄學習進度。</p><p class="small">重設學習進度不會清除包裹櫃資料庫。</p><button id="reset-progress" type="button">重設學習進度</button><p id="storage-note" class="small" hidden>此瀏覽器無法保存進度；仍可正常勾選。</p></div></div></aside><main id="main"><section id="intro" class="intro"><div class="hero-layout"><div><h1>用 IBM Bob<br>打造<span>智慧包裹櫃</span></h1><p class="lead">從空資料夾開始，完成包裹存入、櫃位分配、取件驗證與紀錄查詢。</p></div></div><div class="scenario"><h2>任務情境：打造辦公室智慧包裹櫃</h2><p>你接到一項任務：替辦公室建立一套包裹管理系統。</p><p>目前，行政人員使用紙本或試算表登記包裹，再手動安排櫃位。包裹一多，就容易發生櫃位重複分配，或包裹已領取、紀錄卻尚未更新的情況。</p><p>接下來，你將使用 IBM Bob，逐步完成這套系統：</p><ul class="reminders"><li>存入包裹：輸入收件人與包裹尺寸，自動分配合適的空櫃並產生取件碼。</li><li>領取包裹：輸入取件碼，完成取件並釋放櫃位。</li><li>查詢紀錄：查看包裹狀態、存件時間與取件時間。</li></ul></div><div class="parts-grid"><article><h3>01 · 前端</h3><p>顯示櫃位、提供存件與取件操作。</p></article><article><h3>02 · 後端</h3><p>處理櫃位分配、取件碼驗證與資料更新。</p></article><article><h3>03 · 資料庫</h3><p>保存櫃位狀態與包裹紀錄。</p></article></div></section><section id="prepare" class="lesson"><div class="section-heading"><span class="step-number">00</span><div><p class="eyebrow">開始之前</p><h2>開始前準備</h2></div></div><div class="goal"><h3>本步目標</h3><p>從空資料夾開始，讓 Bob 下載、驗證並檢查專案專用的 Node.js 24。</p></div><h3>操作說明</h3><p>先建立新的空資料夾 bob-locker，在 IBM Bob 開啟該資料夾，並將對話切換至 Agent 模式。</p><ol class="instructions"><li>貼上本步環境準備提示詞。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：本步不需啟動包裹櫃程式。</li><li>按照本步驗證操作確認結果：確認 Bob 回報實際執行命令、Node.js 版本及記憶體資料庫寫入與查詢結果。</li><li>確認後勾選驗收清單。</li></ol><p class="note">這一步是讓 Bob 確認執行環境可以使用。記憶體資料庫不會產生 locker.db；正式資料庫會在建立後端時產生。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-0">複製提示詞 ⧉</button></div><pre id="prompt-0" tabindex="0"><code>請在 Bob 目前開啟的專案根目錄內建立 runtime 資料夾，準備本專案使用的 Node.js 執行環境。
+1. 確認專案路徑、作業系統與處理器架構。
+2. 從 Node.js 官方網站下載對應平台的 Node.js 24 壓縮檔，驗證官方 SHA256 後，解壓縮至 runtime。
+3. 執行檔位置以目前專案根目錄為起點：
+   - Windows：runtime/node.exe
+   - macOS、Linux：runtime/bin/node
+     不要額外建立一層 bob-locker 或版本名稱資料夾。
+4. 後續指令與啟動腳本一律明確使用這份 Node.js。
+5. 不使用系統安裝程式，不修改 PATH、Bob 或 Shell 設定，不變更原有 Node.js，也不安裝額外套件。
+6. 使用專案 runtime 內的 Node.js 顯示版本，再使用內建 node:sqlite 建立 :memory: 記憶體資料庫，建立測試資料表，完成一筆資料的寫入與查詢。請由你實際執行，回報執行命令、版本及檢查結果；未執行的項目不可標示通過。
+完成後回報執行檔的絕對路徑與驗證結果。這一步只準備環境，先不要建立包裹櫃程式；失敗時回報原因，不改用全域安裝。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>runtime 是本專案放置 Node.js 執行環境的資料夾。後續啟動腳本會指定使用這裡的 Node.js，其他專案維持原本設定。</p></div><div class="expected"><h3>預期結果</h3><p>Bob 依作業系統與架構建立 runtime，使用官方 SHA256 資訊驗證下載檔，回報 Node.js 版本、執行檔位置與 SQLite 記憶體資料庫測試結果。此步尚未建立包裹櫃程式。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="prepare"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="prepare-0" data-progress><label for="prepare-0">已用 Bob 開啟 bob-locker 資料夾。</label></div><div class="check"><input type="checkbox" id="prepare-1" data-progress><label for="prepare-1">Bob 已建立 runtime 資料夾。</label></div><div class="check"><input type="checkbox" id="prepare-2" data-progress><label for="prepare-2">專案內的 Node.js 可以顯示版本。</label></div><div class="check"><input type="checkbox" id="prepare-3" data-progress><label for="prepare-3">SQLite 記憶體資料庫測試成功。</label></div></div></div></section><section id="step-1" class="lesson"><div class="section-heading"><span class="step-number">01</span><div><p class="eyebrow">STEP 1 / 6</p><h2>建立後端與櫃位資料</h2></div></div><div class="goal"><h3>本步目標</h3><p>先讓後端啟動，並從 SQLite 讀取六個櫃位。</p></div><h3>操作說明</h3><ol class="instructions"><li>貼上本步提示詞。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：在 Bob 終端機中，確認目前位於 bob-locker 專案根目錄，再執行啟動腳本。Windows PowerShell 使用 <code>.\start.bat</code>；macOS、Linux 使用 <code>sh ./start.sh</code>。</li><li>按照本步驗證操作確認結果：使用實際服務網址加上 <code>/api/health</code>、<code>/api/lockers</code> 驗證，例如 <code>http://127.0.0.1:3000/api/health</code>。此時尚未建立前端，應看到 JSON。</li><li>確認後勾選驗收清單。</li></ol><ul class="reminders"><li>啟動腳本用來啟動後端，程式運作期間保留該終端機。</li><li>停止時，在執行中的終端機按 Ctrl+C。</li><li>修改後端後，先停止原本的程式，再重新執行啟動腳本。</li><li>單純修改前端通常重新整理網頁即可。</li><li>不要同時重複啟動多份後端。</li></ul><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-1">複製提示詞 ⧉</button></div><pre id="prompt-1" tabindex="0"><code>請在目前專案根目錄建立智慧包裹櫃的後端基礎。
+使用 JavaScript、Node.js 內建的 node:http 建立 HTTP 服務，使用 node:sqlite 操作 SQLite。不安裝第三方套件。所有指令使用專案 runtime 內的 Node.js。
+1. 檔案與啟動
+- server/server.js：HTTP 服務與 API。
+- server/db.js：資料庫連線與初始化。
+- server/locker-service.js：櫃位查詢。
+- data/locker.db：由程式自動建立的 SQLite 資料庫。
+依目前作業系統建立啟動腳本：Windows 使用 start.bat，macOS、Linux 使用 start.sh。腳本先切換到專案根目錄，再明確使用 runtime 內的 Node.js 啟動 server/server.js。
+資料庫路徑以程式位置計算，不依賴終端機所在目錄。
+2. 服務設定
+   只監聽 127.0.0.1，讀取 PORT 環境變數，未設定時使用 3000。啟動成功後顯示實際網址。
+連接埠被占用時顯示明確錯誤，不結束其他程式或修改系統設定。
+3. 資料庫
+   建立 lockers 資料表：
+- id：文字主鍵。
+- size：只允許 S、M、L。
+- status：只允許 available、occupied。
+首次初始化加入六個櫃位：
+- S01、S02：S。
+- M01、M02：M。
+- L01、L02：L。
+初始狀態全部為 available，重啟時保留既有資料與狀態。
+4. API
+   GET /api/health
+   回傳：{&quot;status&quot;:&quot;ok&quot;}
+GET /api/lockers
+回傳格式：{&quot;lockers&quot;:[{&quot;id&quot;:&quot;S01&quot;,&quot;size&quot;:&quot;S&quot;,&quot;status&quot;:&quot;available&quot;}]}
+從資料庫讀取全部六個櫃位，依 S01、S02、M01、M02、L01、L02 排序。
+API 使用 JSON 回應，錯誤格式統一為：
+{&quot;error&quot;:{&quot;code&quot;:&quot;錯誤代碼&quot;,&quot;message&quot;:&quot;繁體中文說明&quot;}}
+這一步只完成後端基礎，先不要製作前端、存件或取件功能。
+完成後檢查語法與兩個 API，回報實際結果，並依目前作業系統提供啟動、停止方式與驗證網址。未執行的檢查標示為待確認。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>先建立 API，確認後端與資料庫能獨立運作。</p></div><div class="expected"><h3>預期結果</h3><p>六個櫃位依序為 S01、S02、M01、M02、L01、L02，全部 available；/api/health 回傳 {&quot;status&quot;:&quot;ok&quot;}，並產生 data/locker.db。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-1"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-1-0" data-progress><label for="step-1-0">後端成功啟動。</label></div><div class="check"><input type="checkbox" id="step-1-1" data-progress><label for="step-1-1">/api/health 回傳 ok。</label></div><div class="check"><input type="checkbox" id="step-1-2" data-progress><label for="step-1-2">/api/lockers 顯示六個櫃位。</label></div><div class="check"><input type="checkbox" id="step-1-3" data-progress><label for="step-1-3">六個櫃位皆為 available。</label></div><div class="check"><input type="checkbox" id="step-1-4" data-progress><label for="step-1-4">專案內出現 data/locker.db。</label></div></div></div><details class="supplement"><summary>連接埠被占用時怎麼辦？</summary><p>127.0.0.1 代表這個程式只接受本機連線。這項設定只作用在本次啟動的包裹櫃程式，不會關閉其他服務或修改其他程式的設定。</p><p>3000 是預設連接埠。若已被其他程式使用，改包裹櫃的連接埠即可，不需要關閉其他人的程式。</p><div class="prompt"><div class="prompt-bar"><span>連接埠卡關提示</span><button type="button" class="copy" data-copy="port-prompt">複製提示詞 ⧉</button></div><pre id="port-prompt" tabindex="0"><code>這個專案的連接埠 3000 已被占用。請只調整本次包裹櫃的啟動方式，改用 3001；如果 3001 也被占用，再選擇其他可用的連接埠。不要結束其他程式，不要修改防火牆或系統設定。請提供符合目前作業系統的啟動指令，並告訴我實際應開啟的網址。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div></details><a class="next-link" href="#step-2">下一步：製作櫃位看板 →</a></section><section id="step-2" class="lesson"><div class="section-heading"><span class="step-number">02</span><div><p class="eyebrow">STEP 2 / 6</p><h2>製作櫃位看板</h2></div></div><div class="goal"><h3>本步目標</h3><p>由前端呼叫 API，顯示資料庫中的櫃位。</p></div><h3>操作說明</h3><ol class="instructions"><li>貼上本步提示詞。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：本步修改後端靜態服務，先停止再重新啟動程式。</li><li>按照本步驗證操作確認結果：開啟後端顯示的根網址，點擊「重新整理櫃位」，依下方預期結果確認六個空櫃。</li><li>確認後勾選驗收清單。</li></ol><p class="note">開啟後端顯示的根網址，例如 <code>http://127.0.0.1:3000/</code>。若實際連接埠不同，使用實際網址。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-2">複製提示詞 ⧉</button></div><pre id="prompt-2" tabindex="0"><code>請延續目前專案，製作智慧包裹櫃前端。
+建立 frontend/index.html、frontend/style.css、frontend/app.js。使用原生 HTML、CSS、JavaScript，不安裝套件或使用 CDN。
+頁面標題為「BOB 智慧包裹櫃」，採藍白配色、系統字型，包含：
+- 標題與簡短說明。
+- 空櫃、使用中數量。
+- 六個櫃位卡片，顯示櫃號、尺寸與狀態；桌面每列三個，手機每列兩個。
+-「重新整理櫃位」按鈕。
+-「存入包裹」「輸入取件碼」「包裹紀錄」區塊，暫時顯示「後續步驟完成」。
+使用 fetch 呼叫 GET /api/lockers，依回傳資料顯示卡片與統計：
+- available → 空櫃。
+- occupied → 使用中。
+- S、M、L → 小型、中型、大型。
+初次開啟及按下重新整理時讀取 API，不重設資料庫。顯示載入與錯誤狀態，讀取失敗不使用假資料。
+修改後端，讓根網址 / 提供 frontend/index.html，並正確提供 CSS、JavaScript。靜態檔案僅開放 frontend，防止路徑穿越，不得讀取 server、data、runtime 等目錄。
+保持窄螢幕文字正常換行、整頁不水平溢出。這一步不實作存件、取件或紀錄查詢。
+完成後提供重啟方式與瀏覽器應開啟的網址，啟動時使用專案 runtime 內的 Node.js。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>前端讀取 API，避免畫面與資料庫各有一份不同資料。</p></div><div class="expected"><h3>預期結果</h3><p>網頁顯示六個櫃位卡片，空櫃 6、使用中 0；「存入包裹」「輸入取件碼」「包裹紀錄」先顯示尚未開放的說明。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-2"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-2-0" data-progress><label for="step-2-0">網頁顯示六個櫃位卡片。</label></div><div class="check"><input type="checkbox" id="step-2-1" data-progress><label for="step-2-1">空櫃為 6，使用中為 0。</label></div><div class="check"><input type="checkbox" id="step-2-2" data-progress><label for="step-2-2">按重新整理後仍顯示正確狀態。</label></div></div></div><a class="next-link" href="#step-3">下一步：完成存件與自動分配 →</a></section><section id="step-3" class="lesson"><div class="section-heading"><span class="step-number">03</span><div><p class="eyebrow">STEP 3 / 6</p><h2>完成存件與自動分配</h2></div></div><div class="goal"><h3>本步目標</h3><p>建立存件功能，讓使用者在網頁輸入收件人與包裹尺寸，由後端分配櫃位、產生取件碼並儲存資料。</p></div><h3>操作說明</h3><ol class="instructions"><li>先貼上 3-1 存件後端提示詞，完成並閱讀結果後，再貼上 3-2 存件前端提示詞。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：必須先完成 3-1 與 3-2，再停止並重新啟動後端、重新整理網頁，才進行存件操作。</li><li>按照本步驗證操作確認結果：按照下方驗證區依序存入測試甲、測試乙、測試丙，記下各自取件碼。</li><li>確認後勾選驗收清單。</li></ol><p class="note">開啟後端顯示的根網址，例如 <code>http://127.0.0.1:3000/</code>。若實際連接埠不同，使用實際網址。</p><div class="table-wrap"><table><caption>包裹尺寸與空櫃分配規則</caption><thead><tr><th>包裹尺寸</th><th>尋找空櫃順序</th></tr></thead><tbody><tr><td>小型 S</td><td>小型 → 中型 → 大型</td></tr><tr><td>中型 M</td><td>中型 → 大型</td></tr><tr><td>大型 L</td><td>只能使用大型空櫃</td></tr><tr><td>同尺寸</td><td>優先選櫃號較小的空櫃</td></tr></tbody></table></div><h3>3-1 建立存件後端</h3><p>先讓後端具備資料保存與自動分配能力，這一段完成後，網頁還不能操作存件。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-3-1">複製提示詞 ⧉</button></div><pre id="prompt-3-1" tabindex="0"><code>請延續目前專案，建立存件後端，保留既有資料與功能，不安裝套件。
+新增 parcels 資料表：
+- id：自動產生的整數主鍵。
+- recipient：收件人。
+- size：只允許 S、M、L。
+- locker_id：外鍵，對應 lockers.id。
+- pickup_code：六位數字字串，所有歷史紀錄皆不可重複。
+- status：只允許 stored、collected。
+- created_at：UTC ISO 8601 存件時間。
+- collected_at：取件時間，初始為 null。
+啟用外鍵檢查，以資料庫約束確保每個櫃位同時最多一筆 stored 包裹，並允許保留多筆已領取紀錄。
+新增 POST /api/parcels，接收 JSON：
+{&quot;recipient&quot;:&quot;測試甲&quot;,&quot;size&quot;:&quot;S&quot;}
+後端驗證 recipient 為字串，去除頭尾空白後為 1～30 個字元；size 只允許 S、M、L。不合法回傳 400，沿用既有錯誤格式。
+分配空櫃的順序：
+- S 包裹：S → M → L。
+- M 包裹：M → L。
+- L 包裹：只使用 L。
+- 同尺寸依櫃號由小到大。
+- 無合適空櫃回傳 409，不新增紀錄。
+由後端隨機產生六位數字字串，保留開頭的 0；與任何歷史取件碼重複時重新產生。
+成功回傳 201，格式範例：
+{&quot;parcel&quot;:{&quot;id&quot;:1,&quot;lockerId&quot;:&quot;S01&quot;,&quot;pickupCode&quot;:&quot;012345&quot;,&quot;status&quot;:&quot;stored&quot;}}
+實際回傳本次建立的資料。
+選櫃、建立包裹及將櫃位改為 occupied，須在同一個寫入交易完成，失敗全部回復。SQL 使用參數化查詢。
+這一段不修改前端，不實作取件或紀錄查詢。檢查使用專案 runtime 內的 Node.js；需要寫入資料的測試使用獨立暫存資料庫，不修改 data/locker.db。
+完成後簡短說明分配流程，以及實際檢查結果。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><h3>3-2 加入存件操作畫面</h3><p>將前端表單接上剛完成的 API，讓使用者能從網頁存入包裹。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-3-2">複製提示詞 ⧉</button></div><pre id="prompt-3-2" tabindex="0"><code>請延續目前專案，在 frontend 的「存入包裹」區加入收件人欄位、尺寸選單與存入按鈕，沿用既有樣式。
+表單送出事件先執行 preventDefault，再使用 fetch 送出，不得造成整頁導向或重新載入。
+使用 POST、Content-Type: application/json，並以 JSON.stringify 產生包含 recipient 與 size 的請求內容，呼叫 /api/parcels。尺寸選單顯示小型、中型、大型，對應值為 S、M、L。
+- 請求期間停用按鈕，無論成功或失敗，都在請求結束後恢復。
+- 成功訊息顯示後端實際回傳的櫃號與六位取件碼，提醒使用者記下，保留到下一次送出或使用者關閉訊息，並重新讀取櫃位與統計。
+- 重新讀取櫃位失敗時，另外顯示更新失敗，不可將已成功存件誤報成存件失敗，避免使用者重複送出。
+- 檢查事件綁定及函式作用範圍，避免初始化錯誤導致存件功能無法使用。
+- 失敗時顯示後端錯誤訊息。
+- 使用者輸入以文字顯示，不當成 HTML。
+保留既有資料與功能，不實作取件或紀錄查詢，不得自動向 data/locker.db 寫入測試包裹。
+完成後提供符合目前作業系統的重啟方式與操作網址，使用專案 runtime 內的 Node.js。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><h3>到包裹櫃網頁驗證</h3><details class="supplement"><summary>忘記取件碼怎麼辦？</summary><p>可將測試甲替換成要查詢的測試收件人。不需為了找回取件碼清空資料庫。</p><div class="prompt"><div class="prompt-bar"><span>唯讀查詢提示詞</span><button type="button" class="copy" data-copy="recover-prompt">複製提示詞 ⧉</button></div><pre id="recover-prompt" tabindex="0"><code>請使用專案 runtime 內的 Node.js，以唯讀方式查詢 data/locker.db，列出收件人為『測試甲』的包裹編號、櫃號、狀態與取件碼。若有多筆，全部列出供我確認。不要修改、刪除或重設任何資料，也不要自動執行取件。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製。</p></div></details><div class="table-wrap"><table><caption>依序存入三筆測試包裹</caption><thead><tr><th>收件人</th><th>尺寸</th><th>預期櫃位</th></tr></thead><tbody><tr><td>測試甲</td><td>小型</td><td>S01</td></tr><tr><td>測試乙</td><td>小型</td><td>S02</td></tr><tr><td>測試丙</td><td>小型</td><td>M01</td></tr></tbody></table></div><p class="note">記下每筆存件成功後顯示的取件碼。下一步會使用測試甲的取件碼。</p><div class="why"><h3>為什麼這樣寫：</h3><p>存件規則放在後端，讓每一次操作遵循相同規則。使用交易，確保包裹與櫃位一起更新成功或一起回復。</p></div><div class="expected"><h3>預期結果</h3><p>三筆依序分配 S01、S02、M01；使用中 3、空櫃 3。六位取件碼由後端產生，實際數字可以不同。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-3"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-3-0" data-progress><label for="step-3-0">三筆包裹依序分配 S01、S02、M01。</label></div><div class="check"><input type="checkbox" id="step-3-1" data-progress><label for="step-3-1">每筆取得六位數字取件碼。</label></div><div class="check"><input type="checkbox" id="step-3-2" data-progress><label for="step-3-2">使用中為 3，空櫃為 3。</label></div><div class="check"><input type="checkbox" id="step-3-3" data-progress><label for="step-3-3">重新整理頁面後，櫃位狀態仍然保留。</label></div></div></div><a class="next-link" href="#step-4">下一步：完成取件與釋放櫃位 →</a></section><section id="step-4" class="lesson"><div class="section-heading"><span class="step-number">04</span><div><p class="eyebrow">STEP 4 / 6</p><h2>完成取件與釋放櫃位</h2></div></div><div class="goal"><h3>本步目標</h3><p>驗證取件碼，並同步更新包裹與櫃位。</p></div><h3>操作說明</h3><ol class="instructions"><li>貼上本步提示詞，先完成取件功能。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：停止並重新啟動後端，再重新整理網頁。</li><li>按照本步驗證操作確認結果：使用測試甲取件碼驗證取件成功、S01 變回空櫃。再輸入一次相同取件碼，確認顯示「此包裹已領取」。保留測試甲的舊碼，供第 6 步驗證使用。</li><li>確認後勾選驗收清單。</li></ol><p class="note">開啟後端顯示的根網址，例如 <code>http://127.0.0.1:3000/</code>。若實際連接埠不同，使用實際網址。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-4">複製提示詞 ⧉</button></div><pre id="prompt-4" tabindex="0"><code>請延續目前專案，實作取件功能。
+新增：
+POST /api/pickups
+請求：{&quot;pickupCode&quot;:&quot;123456&quot;}
+規則：
+- pickupCode 必須是字串，去除頭尾空白後為六位數字。
+- 格式錯誤回傳 400。
+- 找不到取件碼回傳 404，訊息「取件碼不存在」。
+- 包裹已是 collected 時回傳 409，訊息「此包裹已領取」。
+- 取件碼有效，且包裹狀態為 stored（待領取）時，完成取件，將包裹狀態更新為 collected（已領取），記錄 collected_at，並將原櫃位改為 available。
+- 驗證與更新必須在同一個寫入交易中完成。
+- 若資料狀態不一致，回傳錯誤並回復交易，不要釋放可能屬於其他包裹的櫃位。
+- 相同取件碼不能重複領取。
+成功回傳：
+{&quot;parcel&quot;:{&quot;id&quot;:1,&quot;lockerId&quot;:&quot;S01&quot;,&quot;status&quot;:&quot;collected&quot;}}
+前端完成「輸入取件碼」區：
+- 取件碼使用文字欄位保留開頭的 0，可設定 inputmode=&quot;numeric&quot;。
+- 表單送出先執行 preventDefault，使用 fetch 傳送 JSON，以 Content-Type: application/json 與 JSON.stringify 產生請求，不得造成整頁跳轉。
+- 取件按鈕。
+- 請求期間停用按鈕，無論請求成功或失敗，結束後恢復按鈕。
+- 成功顯示取件完成與櫃號。
+- 成功後重新讀取櫃位與統計；成功取件後若更新看板失敗，分開顯示，不可誤報取件失敗。
+- 失敗顯示明確訊息。
+保留現有資料與存件功能。
+不要替我自動領取正式資料庫中的包裹，我要手動驗證。
+完成後說明修改與驗證方式。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>使用交易，讓包裹狀態與櫃位狀態一起更新。確認取件碼對應的包裹尚未領取，而且仍占用該櫃位，才完成取件並釋放櫃位；已使用的取件碼必須拒絕，不能影響後來存入的包裹。</p></div><div class="expected"><h3>預期結果</h3><p>測試甲已領取，S01 為空櫃；S02、M01 仍使用中。使用中 2、空櫃 4，相同取件碼不能重複領取。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-4"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-4-0" data-progress><label for="step-4-0">測試甲取件成功。</label></div><div class="check"><input type="checkbox" id="step-4-1" data-progress><label for="step-4-1">S01 恢復空櫃。</label></div><div class="check"><input type="checkbox" id="step-4-2" data-progress><label for="step-4-2">同一組取件碼無法重複取件。</label></div><div class="check"><input type="checkbox" id="step-4-3" data-progress><label for="step-4-3">測試乙的 S02 與測試丙的 M01 仍為使用中。</label></div><div class="check"><input type="checkbox" id="step-4-4" data-progress><label for="step-4-4">使用中為 2，空櫃為 4。</label></div></div></div><a class="next-link" href="#step-5">下一步：顯示包裹紀錄 →</a></section><section id="step-5" class="lesson"><div class="section-heading"><span class="step-number">05</span><div><p class="eyebrow">STEP 5 / 6</p><h2>顯示包裹紀錄</h2></div></div><div class="goal"><h3>本步目標</h3><p>從資料庫查詢包裹紀錄，確認存件與取件歷程。</p></div><h3>操作說明</h3><ol class="instructions"><li>先貼上本步提示詞。</li><li>等待 Bob 完成修改，閱讀檢查結果。</li><li>依需要啟動或重啟程式：Bob 完成後，停止並重新啟動後端，再重新整理網頁，確認測試甲、測試乙、測試丙的三筆紀錄。</li><li>按照本步驗證操作確認結果：確認測試甲已領取，測試乙、測試丙待領取；再次重新整理及重啟後資料仍存在，排序與欄位符合下方預期結果。</li><li>確認後勾選驗收清單。</li></ol><p class="note">開啟後端顯示的根網址，例如 <code>http://127.0.0.1:3000/</code>。若實際連接埠不同，使用實際網址。</p><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-5">複製提示詞 ⧉</button></div><pre id="prompt-5" tabindex="0"><code>請延續目前專案，完成包裹紀錄查詢。
+新增：
+GET /api/parcels
+回傳：
+{&quot;parcels&quot;:[{&quot;id&quot;:1,&quot;recipient&quot;:&quot;測試甲&quot;,&quot;size&quot;:&quot;S&quot;,&quot;lockerId&quot;:&quot;S01&quot;,&quot;status&quot;:&quot;collected&quot;,&quot;createdAt&quot;:&quot;存件時間&quot;,&quot;collectedAt&quot;:&quot;取件時間&quot;}]}
+回傳所有包裹，依存件時間由新到舊排序，相同時間再依 id 由大到小排序。
+這個查詢 API 不要回傳 pickupCode。
+時間統一儲存為 UTC 的 ISO 8601 字串，前端轉為使用者可閱讀的本地時間。
+尚未取件時 collectedAt 為 null。
+前端「包裹紀錄」顯示：
+- 收件人。
+- 包裹尺寸。
+- 櫃號。
+- 狀態。
+- 存件時間。
+- 取件時間。
+stored 顯示「待領取」。
+collected 顯示「已領取」。
+尚未取件的時間顯示「—」。
+加入：
+- 初次開啟自動讀取。
+- 存件成功後更新紀錄。
+- 取件成功後更新紀錄。
+- 手動重新整理紀錄。
+- 沒有資料、載入中與讀取失敗狀態。
+- 手機可閱讀的版面。
+所有紀錄以後端 SQLite 為準，不使用 localStorage 保存包裹資料，也不在讀取失敗時建立假資料。
+保留目前測試甲、測試乙、測試丙的資料，不重設資料庫。
+完成後告訴我如何停止並重新啟動，再確認資料仍然存在。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>重啟後查詢，確認資料真的存在資料庫，而不只是暫時留在畫面中。</p></div><div class="expected"><h3>預期結果</h3><p>測試甲顯示「已領取」且有取件時間；測試乙、測試丙顯示「待領取」。依存件時間新到舊排列，時間相同以 id 由大到小排序；未取件時間顯示「—」，紀錄不顯示取件碼。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-5"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-5-0" data-progress><label for="step-5-0">測試甲顯示已領取，且有取件時間。</label></div><div class="check"><input type="checkbox" id="step-5-1" data-progress><label for="step-5-1">測試乙、測試丙顯示待領取。</label></div><div class="check"><input type="checkbox" id="step-5-2" data-progress><label for="step-5-2">重新整理後紀錄仍存在。</label></div><div class="check"><input type="checkbox" id="step-5-3" data-progress><label for="step-5-3">重啟後端後，紀錄與櫃位狀態仍正確。</label></div></div></div><a class="next-link" href="#step-6">下一步：驗證完整流程 →</a></section><section id="step-6" class="lesson"><div class="section-heading"><span class="step-number">06</span><div><p class="eyebrow">STEP 6 / 6</p><h2>驗證完整流程</h2></div></div><div class="goal"><h3>本步目標</h3><p>依序驗證尺寸分配、舊碼保護、額滿拒絕與資料保存。</p></div><h3>操作說明</h3><p>以下測試接續前面步驟的資料。請依序執行一次；若目前狀態不同，先用卡關提示請 Bob 協助確認，不要直接刪除資料庫重來。先完成下方八項人工測試，再貼上本步檢查提示詞。這是最後的程式檢查；等待 Bob 完成並閱讀實際檢查結果，若有修改則依需要重啟並重新確認結果，最後勾選驗收清單。</p><div class="table-wrap"><table><caption>接續既有資料 · 八項固定人工測試</caption><thead><tr><th>操作</th><th>預期結果</th></tr></thead><tbody><tr><td>1. 存入「測試丁」小型包裹。</td><td>分配 S01。</td></tr><tr><td>2. 再次使用「測試甲」的舊取件碼。</td><td>顯示已領取；測試丁仍在 S01，不能因舊取件碼而被取走。</td></tr><tr><td>3. 存入「測試戊」大型包裹。</td><td>分配 L01。</td></tr><tr><td>4. 存入「測試己」大型包裹。</td><td>分配 L02。</td></tr><tr><td>5. 存入「測試庚」大型包裹。</td><td>存件失敗。雖然 M02 還空著，但大型包裹不能使用中型櫃；不可新增紀錄。</td></tr><tr><td>6. 存入「測試辛」中型包裹。</td><td>分配 M02。</td></tr><tr><td>7. 再嘗試存入一筆小型包裹。</td><td>所有櫃位已滿，存件失敗，不可新增紀錄。</td></tr><tr><td>8. 重啟程式並重新整理。</td><td>六個櫃位仍為使用中；共七筆包裹紀錄，其中一筆已領取、六筆待領取。</td></tr></tbody></table></div><div class="prompt"><div class="prompt-bar"><span>可複製提示詞</span><button type="button" class="copy" data-copy="prompt-6">複製提示詞 ⧉</button></div><pre id="prompt-6" tabindex="0"><code>我已依教學完成包裹櫃的手動驗證，請檢查目前專案：
+1. 小型包裹依序找小型、中型、大型空櫃。
+2. 中型包裹依序找中型、大型空櫃。
+3. 大型包裹只能使用大型空櫃。
+4. 同尺寸優先選較小櫃號。
+5. 沒有適合櫃位時，不新增包裹紀錄。
+6. 存件與取件的相關資料更新使用交易。
+7. 同一個取件碼不能重複領取。
+8. 舊取件碼不會釋放後來放入其他包裹的櫃位。
+9. 重新整理或重啟後，SQLite 資料仍保留。
+10. 前端資料由 API 取得，沒有以假資料掩蓋錯誤。
+11. 啟動腳本明確使用專案 runtime 中的 Node.js。
+12. 後端只監聽 127.0.0.1。
+請先閱讀現有程式，再對確定的問題做最小範圍修正。
+保留現有資料、畫面與專案內執行環境，不新增其他功能，不安裝套件，不修改全域設定。
+如果要執行會寫入資料的自動測試，請使用另外的暫存資料庫，不要改動目前 data/locker.db 的驗證資料。
+完成後整理：
+- 已完成的功能。
+- 前端、API、SQLite 之間的資料流程。
+- 發現並修正的問題。
+- 實際執行過的檢查及結果。
+- 仍需人工確認的項目。
+不要把僅閱讀程式碼推論的結果，寫成已實際測試通過。</code></pre><p class="copy-help" hidden>複製未成功。提示詞已選取，請按 Ctrl+C（Mac：⌘C）手動複製；亦可拖曳選取文字。</p></div><div class="why"><h3>為什麼這樣寫：</h3><p>依固定資料測試，才能看出櫃位重用與失敗操作是否正確。請 Bob 區分已執行的驗證與仍需人工確認的項目。</p></div><div class="expected"><h3>預期結果</h3><p>六個櫃位皆使用中；共七筆包裹紀錄，其中測試甲已領取，測試乙、丙、丁、戊、己、辛六筆待領取。測試庚與額滿後的失敗存件不新增紀錄。</p></div><div class="accept"><h3>驗收清單 <span class="section-count" data-count="step-6"></span></h3><div class="checks"><div class="check"><input type="checkbox" id="step-6-0" data-progress><label for="step-6-0">尺寸分配與滿櫃處理正確。</label></div><div class="check"><input type="checkbox" id="step-6-1" data-progress><label for="step-6-1">舊取件碼無法影響新包裹。</label></div><div class="check"><input type="checkbox" id="step-6-2" data-progress><label for="step-6-2">失敗操作沒有新增包裹紀錄。</label></div><div class="check"><input type="checkbox" id="step-6-3" data-progress><label for="step-6-3">六個櫃位皆使用中。</label></div><div class="check"><input type="checkbox" id="step-6-4" data-progress><label for="step-6-4">七筆紀錄包含一筆已領取、六筆待領取。</label></div><div class="check"><input type="checkbox" id="step-6-5" data-progress><label for="step-6-5">重啟後資料仍存在。</label></div></div></div><a class="next-link" href="#intro">回到課程開頭 ↑</a></section><footer>IBM Bob 學院 <a href="#intro">回到頂部 ↑</a></footer></main></div><div id="toast" role="status" aria-live="polite"></div></body></html>
